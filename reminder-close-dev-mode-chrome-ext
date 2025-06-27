@@ -1,0 +1,27 @@
+Add-Type -AssemblyName PresentationFramework
+
+function Check-ChromeYouTube {
+    $chromeWindows = Get-Process chrome -ErrorAction SilentlyContinue | Where-Object {
+        $_.MainWindowTitle -like "*YouTube*"
+    }
+    return $chromeWindows.Count -gt 0
+}
+
+$wasYouTubeOpen = $true
+
+while ($true) {
+    Start-Sleep -Seconds 15  # Check every 15 seconds
+
+    $isYouTubeOpen = Check-ChromeYouTube
+
+    if ($wasYouTubeOpen -and -not $isYouTubeOpen) {
+        # YouTube just closed
+        [System.Windows.MessageBox]::Show(
+            "You closed YouTube. Remember to disable Chrome's Developer Mode if you enabled it for scripts!",
+            "🔒 Dev Mode Reminder",
+            'OK',
+            'Warning'
+        )
+    }
+    $wasYouTubeOpen = $isYouTubeOpen
+}
